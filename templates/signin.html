@@ -1,0 +1,58 @@
+{{define "signin"}}
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>App - Signin</title>
+    <link rel="stylesheet" type="text/css" href="/static/index.css" />
+    <script
+      src="https://unpkg.com/htmx.org@1.9.6"
+      integrity="sha384-FhXw7b6AlE/jyjlZH5iHa/tTe9EpJ1Y55RjcgPbjeWMskSxZt1v9qkxLJWNJaGni"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+
+  <body class="w-[100vw] h-[100vh]">
+    <form
+      hx-post="/auth/signin"
+      hx-swap="none"
+      class="max-w-[500px] max-h-[400px] min-h-[250px] rounded-xl shadow-xl bg-white p-4 m-auto translate-y-[50%] flex flex-col items-center gap-4"
+    >
+      <h1 class="text-blue-800 font-black text-xl">
+        Welcome back, please sign in
+      </h1>
+      <div class="flex flex-col gap-1 w-full max-w-[300px]">
+        <label for="email">Email*</label>
+        <input
+          id="email"
+          name="email"
+          required
+          type="email"
+          class="px-4 py-1.5 rounded border border-solid border-neutral-300 hover:bg-neutral-50"
+        />
+      </div>
+
+      <div class="flex flex-col gap-1 w-full max-w-[300px]">
+        <label for="password">Password*</label>
+        <input
+          id="password"
+          name="password"
+          required
+          type="password"
+          class="px-4 py-1.5 rounded border border-solid border-neutral-300 hover:bg-neutral-50"
+        />
+      </div>
+
+      <button
+        type="submit"
+        class="px-2 py-1 rounded-lg bg-blue-500 w-[100px] text-center text-white hover:bg-blue-400 transition-all"
+      >
+        Sign in
+      </button>
+
+      <p>or</p>
+
+      <a href="/auth/register">Register</a>
+    </form>
+  </body>
+</html>
+{{end}}

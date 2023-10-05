@@ -1,0 +1,42 @@
+{{define "accounts-list"}}
+	{{if or (not .Accounts) (eq (len .Accounts) 0)}} 
+		<p class="italic text-neutral-400">No accounts yet</p>
+	{{else}}
+		{{range .Accounts}}
+			{{template "account-row" .}}
+		{{end}}
+	{{end}}
+{{end}}
+
+{{block "account-edit" .}}
+<form 
+	id="account-{{.ID}}" 
+	class="px-4 py-2 border border-solid border-neutral-200 rounded-lg hover:bg-neutral-50 hover:shadow-sm flex flex-row justify-between gap-2"
+	hx-put="/accounts/{{.ID}}" 
+	hx-swap="outerHTML" 
+	hx-target="this">
+	<input class="flex w-full" id="account-name" name="account-name" value="{{.Name}}" placeholder="Account name*" required />
+
+	<button 
+		class="btn-primary"
+		type="submit"
+	>
+		Save
+	</button>
+</form>
+{{end}}
+
+{{block "account-row" .}}
+<div id="account-{{.ID}}" class="px-4 py-2 border border-solid border-neutral-200 rounded-lg hover:bg-neutral-50 hover:shadow-sm flex flex-row justify-between">
+	<p>{{.Name}}</p>
+
+	<button 
+		class="rounded-lg w-6 h-6 flex justify-center items-center text-primary hover:text-primary/80"
+		hx-get="/components/accounts/edit/{{.ID}}"
+		hx-target="#account-{{.ID}}"
+		hx-swap="outerHTML"
+	>
+		<i class="fa-solid fa-pen"></i>
+	</button>
+</div>
+{{end}}

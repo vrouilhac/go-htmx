@@ -1,0 +1,77 @@
+{{define "register"}}
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>App - Register</title>
+    <link rel="stylesheet" type="text/css" href="/static/index.css" />
+    <script
+      src="https://unpkg.com/htmx.org@1.9.6"
+      integrity="sha384-FhXw7b6AlE/jyjlZH5iHa/tTe9EpJ1Y55RjcgPbjeWMskSxZt1v9qkxLJWNJaGni"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+
+  <body class="w-[100vw] h-[100vh]">
+    <form
+      hx-post="/auth/register"
+      class="max-w-[500px] rounded-xl shadow-xl bg-white p-4 m-auto mt-32 flex flex-col items-center gap-4"
+    >
+      <h1 class="text-blue-800 font-black text-xl">Welcome, please register</h1>
+      <div class="flex flex-col gap-1 w-full max-w-[300px]">
+        <label for="firstname">Firstname*</label>
+        <input
+          id="firstname"
+          name="firstname"
+          required
+          type="firstname"
+          class="px-4 py-1.5 rounded border border-solid border-neutral-300 hover:bg-neutral-50"
+        />
+      </div>
+
+      <div class="flex flex-col gap-1 w-full max-w-[300px]">
+        <label for="lastname">Lastname*</label>
+        <input
+          id="lastname"
+          name="lastname"
+          required
+          type="lastname"
+          class="px-4 py-1.5 rounded border border-solid border-neutral-300 hover:bg-neutral-50"
+        />
+      </div>
+
+      <div class="flex flex-col gap-1 w-full max-w-[300px]">
+        <label for="email">Email*</label>
+        <input
+          id="email"
+          name="email"
+          required
+          type="email"
+          class="px-4 py-1.5 rounded border border-solid border-neutral-300 hover:bg-neutral-50"
+        />
+      </div>
+
+      <div class="flex flex-col gap-1 w-full max-w-[300px]">
+        <label for="password">Password*</label>
+        <input
+          id="password"
+          name="password"
+          required
+          type="password"
+          class="px-4 py-1.5 rounded border border-solid border-neutral-300 hover:bg-neutral-50"
+        />
+      </div>
+
+      <button
+        type="submit"
+        class="px-2 py-1 rounded-lg bg-blue-500 w-[100px] text-center text-white hover:bg-blue-400 transition-all"
+      >
+        Register
+      </button>
+
+      <p>or</p>
+
+      <a href="/auth/signin">Sign in</a>
+    </form>
+  </body>
+</html>
+{{end}}

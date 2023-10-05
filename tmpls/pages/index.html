@@ -1,0 +1,59 @@
+{{define "base"}}
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{{.Title}}</title>
+    {{template "basic-head"}}
+  </head>
+
+  <body class="flex flex-col">
+    {{template "app-bar" .}}
+
+		<div class="flex flex-row gap-8 mx-8 lg:mx-[7%] xl:mx-[14%] my-4 lg:my-12 h-full">
+			<div class="flex flex-col border border-solid border-neutral-200 min-w-[260px] h-[600px] rounded-lg px-4 py-2">
+				<div class="flex flex-row gap-4 justify-between">
+					<p class="font-bold">Accounts</p>
+
+					<button 
+						class="bg-primary hover:bg-primary/80 rounded-lg w-6 h-6 flex justify-center items-center text-white"
+						hx-post="/accounts"
+						hx-swap="none"
+						hx-target="this"
+					>
+						<i class="fa-solid fa-plus"></i>
+					</button>
+				</div>
+
+				<div 
+					class="flex flex-col gap-1.5 mt-4"
+					hx-get="/components/accounts" 
+					hx-swap="innerHTML" 
+					hx-target="this" 
+					hx-trigger="update-accounts from:body, load"
+				></div>
+			</div>
+			<div
+				class="flex flex-col gap-1 border h-full w-full rounded-lg px-4 py-2"
+				hx-get="/transactions"
+				hx-trigger="update-transactions from:body"
+				hx-swap="innerHTML"
+				hx-target="this"
+			>
+				{{if or (not .Transactions) (eq len .Transactions 0)}} 
+					{{template "empty-rows" .}} 
+				{{else}} 
+					{{template "transactions-list" .}} 
+				{{end}}
+			</div>
+		</div>
+  </body>
+</html>
+{{end}} 
+
+{{block "empty-rows" .}}
+<div class="text-center mt-8">
+  <p class="italic text-neutral-400 text-lg">
+    Looks like you have no transactions yet!
+  </p>
+</div>
+{{end}}

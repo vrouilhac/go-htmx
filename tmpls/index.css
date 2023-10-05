@@ -1,0 +1,29 @@
+@tailwind base;
+
+@tailwind components;
+
+@tailwind utilities;
+
+@layer components {
+  .btn-base {
+    @apply px-4 py-1.5 rounded-lg font-bold text-sm transition-all;
+  }
+
+  .btn-white {
+    @apply btn-base bg-white text-green-900 hover:bg-green-50;
+  }
+
+  .btn-primary {
+    @apply btn-base bg-[#609966] text-white hover:bg-[#80AD85];
+  }
+
+  .text-field {
+    @apply px-4 py-1.5 rounded border border-solid border-neutral-300 hover:bg-neutral-50;
+  }
+}
+
+html,
+body {
+  width: 100vw;
+  height: 100vh;
+}

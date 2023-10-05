@@ -1,0 +1,24 @@
+{{define "app-bar"}}
+<header
+  class="h-12 bg-[#609966] flex flex-row items-center justify-between shadow text-[#ECEEEB] px-4"
+>
+  <div>
+    <p class="font-black">BudgetApp</p>
+  </div>
+  <div>
+    <button
+      hx-get="/components/add-modal"
+      hx-target="body"
+      hx-swap="beforeend"
+			{{if not .HasAccounts}}
+				class="btn-white bg-white/80 hover:bg-white/80"
+				disabled
+			{{else}}
+				class="btn-white"
+			{{end}}
+    >
+      New
+    </button>
+  </div>
+</header>
+{{end}}

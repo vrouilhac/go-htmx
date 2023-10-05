@@ -1,0 +1,22 @@
+{{define "list"}}
+<div id="users-list">
+  <p>Users</p>
+  <ul>
+    {{range .Users}}
+    <li class="px-2 py-0.5">
+      {{template "user-row" .}}
+      <span>
+        <button>Edit</button>
+        <button
+          hx-delete="/users/{{.ID}}"
+          hx-swap="outerHTML"
+          hx-target="#users-list"
+        >
+          Delete
+        </button>
+      </span>
+    </li>
+    {{end}}
+  </ul>
+</div>
+{{end}}

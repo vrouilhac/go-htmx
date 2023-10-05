@@ -1,0 +1,55 @@
+{{block "transaction-row-base" .}}
+<div class="flex flex-row items-center gap-4">
+  <p class="text-gray-400">{{.FormatDate}}</p>
+  {{if eq .Operation "SUB"}}
+  <p class="min-w-[100px] text-red-800">-{{.Amount}}€</p>
+  {{else}}
+  <p class="min-w-[100px] text-green-800">{{.Amount}}€</p>
+  {{end}}
+  <p class="w-[30%] max-w-[30%] text-ellipsis">
+    {{if .Description}} {{.Description}} {{else}} N/A {{end}}
+  </p>
+  <div class="flex flex-row items-center gap-2">
+    <p class="text-sm px-2 py-1 rounded-lg bg-[#DFEBE0]">Main Account</p>
+    <p>{{"->"}}</p>
+    <p class="text-sm px-2 py-1 rounded-lg bg-[#DFEBE0]">Apple</p>
+  </div>
+</div>
+{{end}} {{block "transaction-row" .}}
+<div
+  class="shadow px-4 py-1.5 hover:bg-neutral-50 transition-all duration-300"
+  hx-get="/components/transaction-row/details/{{.ID}}"
+  hx-swap="outerHTML"
+  hx-target="this"
+  hx-trigger="click"
+>
+  {{template "transaction-row-base" .}}
+</div>
+{{end}} {{block "transaction-row-details" .}}
+<div
+  class="shadow px-4 py-1.5 hover:bg-neutral-50 transition-all duration-300"
+  hx-get="/components/transaction-row/{{.ID}}"
+  hx-swap="outerHTML"
+  hx-target="this"
+  hx-trigger="click"
+  id="tr-row-{{.ID}}"
+>
+  {{template "transaction-row-base" .}}
+
+  <div class="flex flex-row items-start">
+    <p class="flex-1">{{.Description}}</p>
+
+    <div>
+      <button
+        hx-delete="/transactions/{{.ID}}"
+        hx-swap="outerHTML"
+        hx-target="#tr-row-{{.ID}}"
+        hx-trigger="click consume"
+        class="btn-primary bg-red-600 text-white hover:bg-red-500"
+      >
+        Delete
+      </button>
+    </div>
+  </div>
+</div>
+{{end}}

@@ -1,0 +1,287 @@
+
+package main
+
+import (
+	// "errors"
+	"fmt"
+	"github.com/gorilla/sessions"
+	"html/template"
+	"io"
+	"math/rand"
+	"net/http"
+	"os"
+	"strings"
+
+	"vrouilhac/webserver/databases"
+)
+
+var store = sessions.NewCookieStore([]byte("my-super-secret-key"))
+
+type Database[Data any] struct {
+	Rows []Data
+}
+
+type DBUser struct {
+	ID        string
+	Firstname string
+	Lastname  string
+	Email     string
+	Password  string
+}
+
+type DBNotFoundError struct{}
+
+func (e *DBNotFoundError) Error() string {
+	return "Item Not Found Error"
+}
+
+func GetUserByEmail(db *Database[DBUser], email string) (*DBNotFoundError, *DBUser) {
+	for _, user := range db.Rows {
+		if user.Email == email {
+			return nil, &user
+		}
+	}
+
+	return &DBNotFoundError{}, nil
+}
+
+var userDatabase Database[DBUser]
+
+type User struct {
+	Name string
+	Age  int
+	ID   string
+}
+
+var users []User
+
+type Data struct {
+	Users       []User
+	DisplayName string
+	Title       string
+	Template    string
+}
+
+// type TemplateRenderer[Data any] interface {
+// 	Render(writer io.Writer, data Data)
+// }
+
+type Template struct {
+	key string
+}
+
+func NewTemplate(key string) Template {
+	return Template{key}
+}
+
+func (t *Template) Render(w io.Writer, data any) {
+	templates.ExecuteTemplate(w, t.key, data)
+}
+
+// var templates, temp_err = template.ParseFiles(
+// 	"templates/index.html",
+// 	"templates/list.html",
+// 	"templates/buttons.html",
+// 	"templates/user-row.html",
+// 	"templates/signin.html",
+// 	"templates/register.html",
+// 	"templates/header.html",
+// )
+
+var templates, temp_err = template.ParseGlob("templates/*.html")
+
+func getHome(w http.ResponseWriter, r *http.Request) {
+	if temp_err != nil {
+		fmt.Println("Error")
+	}
+
+	e := templates.ExecuteTemplate(w, "base", Data{
+		Title:       "Home",
+		DisplayName: "",
+		Users:       users,
+		Template:    "Home",
+	})
+
+	if e != nil {
+		fmt.Println("Error")
+	}
+}
+
+func getNew(w http.ResponseWriter, r *http.Request) {
+	newUser := User{
+		Name: "Undefined",
+		Age:  0,
+		ID:   fmt.Sprintf("%v", rand.Intn(100)),
+	}
+	users = append(users, newUser)
+	fmt.Println(users)
+
+	if temp_err != nil {
+		fmt.Println("Error")
+	}
+
+	e := templates.ExecuteTemplate(w, "base", Data{
+		Users: users,
+	})
+
+	if e != nil {
+		fmt.Println("Error")
+	}
+}
+
+func handleDeleteUser(w http.ResponseWriter, r *http.Request) {
+	paths := strings.Split(r.URL.Path, "/")
+
+	if len(paths) != 3 { // 0 = "", 1 = "users", 2 = "<ID>"
+		fmt.Println("Error")
+	}
+
+	userId := paths[2]
+	index := -1
+
+	for i, user := range users {
+		if userId == user.ID {
+			index = i
+		}
+	}
+
+	if index == -1 {
+		fmt.Println("Error")
+	} else {
+		var newUsers []User
+
+		for i, user := range users {
+			if i != index {
+				newUsers = append(newUsers, user)
+			}
+		}
+
+		users = newUsers
+	}
+
+	if temp_err != nil {
+		fmt.Println("Error")
+	}
+
+	e := templates.ExecuteTemplate(w, "list", Data{
+		Users: users,
+	})
+
+	if e != nil {
+		fmt.Println("Error")
+	}
+}
+
+func handle404(w http.ResponseWriter, r *http.Request) {
+	io.WriteString(w, "Page Not Found")
+}
+
+func handleUsers(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "DELETE":
+		handleDeleteUser(w, r)
+	default:
+		handle404(w, r)
+	}
+}
+
+func handleGetSignin(w http.ResponseWriter, r *http.Request) {
+	template := NewTemplate("signin")
+	template.Render(w, nil)
+}
+
+func handleGetRegister(w http.ResponseWriter, r *http.Request) {
+	template := NewTemplate("register")
+	template.Render(w, nil)
+}
+
+func handlePostRegister(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+
+	firstname := r.PostForm.Get("firstnam")
+	lastname := r.PostForm.Get("lastname")
+	email := r.PostForm.Get("email")
+	password := r.PostForm.Get("password")
+
+	if email != "" {
+		_, user := GetUserByEmail(&userDatabase, email)
+
+		if user != nil {
+			return
+		}
+
+		newUser := DBUser{
+			Email:     email,
+			Firstname: firstname,
+			Lastname:  lastname,
+			Password:  password,
+		}
+
+		userDatabase.Rows = append(userDatabase.Rows, newUser)
+	}
+
+	r.Header.Set("HX-Redirect", "true")
+	http.Redirect(w, r, "/auth/signin", http.StatusFound)
+}
+
+func handlePostSignin(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+
+	email := r.PostForm.Get("email")
+	password := r.PostForm.Get("password")
+
+	err, user := GetUserByEmail(&userDatabase, email)
+
+	if err != nil {
+		return
+	}
+
+	if password != user.Password {
+		return
+	}
+
+	// here I need to redirect
+}
+
+func handleSignin(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "GET":
+		handleGetSignin(w, r)
+	case "POST":
+		handlePostSignin(w, r)
+	default:
+		handle404(w, r)
+	}
+}
+
+func handleRegister(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "GET":
+		handleGetRegister(w, r)
+	case "POST":
+		handlePostRegister(w, r)
+	default:
+		handle404(w, r)
+	}
+}
+
+func main() {
+	fmt.Println(databases.GetAllUsers())
+	fileServer := http.FileServer(http.Dir("./dist"))
+	fileHandler := http.StripPrefix("/static/", fileServer)
+	http.Handle("/static/", fileHandler)
+
+	http.HandleFunc("/users/", handleUsers)
+	http.HandleFunc("/new", getNew)
+	http.HandleFunc("/", getHome)
+
+	http.HandleFunc("/auth/signin", handleSignin)
+	http.HandleFunc("/auth/register", handleRegister)
+
+	err := http.ListenAndServe(":8080", nil)
+
+	if err != nil {
+		fmt.Println("Server error")
+		os.Exit(1)
+	}
+}

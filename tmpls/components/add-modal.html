@@ -1,0 +1,50 @@
+{{define "add-modal"}}
+<div id="add-modal">
+  <div class="fixed inset-0 bg-black/60"></div>
+  <div
+    class="fixed top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%] bg-white p-8 rounded-lg shadow-2xl w-[450px] min-h-[300px] flex flex-col justify-between gap-4"
+  >
+    <p class="font-bold text-xl">Add Transaction</p>
+
+    <form
+      id="add-form"
+      hx-post="/transactions"
+      hx-swap="outerHTML"
+      hx-target="#add-modal"
+      class="flex flex-col gap-4 flex-1"
+    >
+      <div class="flex flex-col gap-1">
+        <label for="amount">Amount</label>
+        <input
+          id="amount"
+          name="amount"
+          type="number"
+          class="text-field"
+					step=".01"
+          required
+        />
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <label for="description">Description</label>
+        <input id="description" name="description" class="text-field" />
+      </div>
+
+      <div class="flex flex-col gap-1">
+				<label for="description">Account</label>
+				<select name="account" id="account" class="text-field py-2">
+					{{range .Accounts}}
+					<option value="{{.ID}}" >{{.Name}}</option>
+					{{end}}
+				</select>
+			</div>
+    </form>
+
+    <div class="flex flex-row justify-end self-end">
+      <button class="btn-primary w-fit" type="submit" form="add-form">
+        Add
+      </button>
+    </div>
+  </div>
+</div>
+{{end}}
